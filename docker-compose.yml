@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:13-alpine
+    container_name: DATABASE
+    environment:
+      POSTGRES_USER: webchat
+      POSTGRES_PASSWORD: 1234
+      POSTGRES_DB: webchat
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - app-network
+
+  api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    container_name: API
+    depends_on:
+      - db
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/webchat
+      SPRING_DATASOURCE_USERNAME: webchat
+      SPRING_DATASOURCE_PASSWORD: 1234
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_JPA_SHOW_SQL: "true"
+      SPRING_JPA_PROPERTIES_HIBERNATE_FORMAT_SQL: "false"
+      SPRING_JPA_PROPERTIES_HIBERNATE_USE_SQL_COMMENTS: "true"
+      JWT_SECRET: 7+0VJNJ7Yi5LvhNwhd8NUnTKvPx6oFS0Ut6Ier/mN/k=
+    ports:
+      - "8080:8080"
+    networks:
+      - app-network
+
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    container_name: CLIENT
+    depends_on:
+      - api
+    ports:
+      - "4200:4200"
+    volumes:
+      - ./client:/app
+      - /app/node_modules
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
