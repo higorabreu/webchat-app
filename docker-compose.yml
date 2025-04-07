@@ -31,10 +31,18 @@ services:
       SPRING_JPA_PROPERTIES_HIBERNATE_FORMAT_SQL: "false"
       SPRING_JPA_PROPERTIES_HIBERNATE_USE_SQL_COMMENTS: "true"
       JWT_SECRET: 7+0VJNJ7Yi5LvhNwhd8NUnTKvPx6oFS0Ut6Ier/mN/k=
+      SPRING_PROFILES_ACTIVE: dev
+      JAVA_OPTS: -Dspring.devtools.restart.enabled=true -Dspring.devtools.livereload.enabled=true
+      SPRING_DEVTOOLS_RESTART_ENABLED: "true"
     ports:
       - "8080:8080"
+      - "35729:35729"
+    volumes:
+      - ./api:/app
+      - ~/.m2:/root/.m2
     networks:
       - app-network
+    restart: unless-stopped
 
   client:
     build:
